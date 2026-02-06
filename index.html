@@ -137,7 +137,7 @@ body {
     </div>
 
     <input id="dateInput" placeholder="Date (01/01/26)">
-    <input id="quoteInput" placeholder="Type your quote">
+    <input id="quoteInput" placeholder="Type your quote click space">
 
     <div id="wordList"></div>
 
@@ -204,7 +204,7 @@ function start(){
     const span = document.createElement("span");
     span.textContent = w + " ";
     span.className = "word";
-    span.style.animationDelay = total + "s";
+    span.style.animationDelay = total + "seconds ani";
     quoteDiv.appendChild(span);
 
     total += parseFloat(times[i]) || 1;
