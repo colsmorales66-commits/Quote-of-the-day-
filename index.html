@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Quote of the Day</title>
 
 <!-- Google Fonts -->
 <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Patrick+Hand&display=swap" rel="stylesheet">
 
 <style>
-
 body {
   margin: 0;
   background: #8B5E3C; /* vintage brown */
@@ -122,12 +120,10 @@ body {
   width: 50px; /* adjust size as needed */
   height: 50px;
 }
-
 </style>
 </head>
 
 <body>
-
 <div class="box">
 
   <!-- INPUT -->
@@ -166,7 +162,6 @@ body {
     <div id="mediaContainer"></div>
 
   </div>
-
 </div>
 
 <script>
@@ -176,24 +171,44 @@ let times = [];
 const quoteInput = document.getElementById("quoteInput");
 const wordList = document.getElementById("wordList");
 
-// Detect SPACE press to split word + ask seconds
+// --- Desktop: SPACE key ---
 quoteInput.addEventListener("keydown", function(e){
   if(e.key === " "){
     e.preventDefault();
-    const word = quoteInput.value.trim();
+    addWordFromInput();
+  }
+});
+
+// --- Mobile: input event ---
+quoteInput.addEventListener("input", function(e){
+  if(quoteInput.value.includes(" ")){
+    addWordFromInput();
+  }
+});
+
+// --- Function to handle word addition ---
+function addWordFromInput(){
+  const value = quoteInput.value;
+  const parts = value.split(" ");
+  
+  // Take all complete words except the last (may be incomplete)
+  for(let i = 0; i < parts.length - 1; i++){
+    const word = parts[i].trim();
     if(word){
       words.push(word);
-      quoteInput.value = "";
 
       // Ask seconds for this word
       const sec = prompt(`Type seconds kung kailan animation :)"${word}"? (like 2,3,4 sec etc)`, "1");
       times.push(Number(sec) || 1);
-
-      updateWordList();
     }
   }
-});
 
+  // Keep the last partial word in input
+  quoteInput.value = parts[parts.length - 1];
+  updateWordList();
+}
+
+// Update word list display
 function updateWordList(){
   wordList.innerHTML = "";
   words.forEach((w,i)=>{
@@ -261,6 +276,5 @@ function start(){
   mediaInput.value = "";
 }
 </script>
-
 </body>
 </html>
