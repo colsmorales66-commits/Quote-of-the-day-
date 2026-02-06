@@ -20,7 +20,6 @@ body {
   align-items: center;
 }
 
-/* Main box */
 .box {
   background: #F5F0E1; /* lighter vintage background for the card */
   width: 90%;
@@ -73,7 +72,7 @@ body {
   line-height: 1.4;
   min-height: 70px;
   margin-bottom: 15px;
-  color: #3E2F1C; /* dark vintage color */
+  color: #3E2F1C;
 }
 
 /* Word animation */
@@ -99,6 +98,9 @@ body {
   flex:1;
   text-align:left;
 }
+.word-delay-box input{
+  width:50px;
+}
 
 /* Media styling */
 .media {
@@ -117,7 +119,7 @@ body {
 }
 
 .header-flex img {
-  width: 50px; /* adjust size as needed */
+  width: 50px; 
   height: 50px;
 }
 </style>
@@ -129,19 +131,16 @@ body {
   <!-- INPUT -->
   <div class="input-box" id="inputBox">
 
-    <!-- Heading + GIF -->
     <div class="header-flex">
       <h2>Enter Quote Info</h2>
       <img src="giphy.gif" alt="GIF">
     </div>
 
     <input id="dateInput" placeholder="Date (01/01/26)">
-
-    <input id="quoteInput" placeholder="Type your quote and press SPACE for animation">
+    <input id="quoteInput" placeholder="Type your quote">
 
     <div id="wordList"></div>
 
-    <!-- Optional media input -->
     <label for="mediaInput">Optional: Add picture or video</label>
     <input type="file" id="mediaInput" accept="image/*,video/*">
 
@@ -153,12 +152,8 @@ body {
   <div id="output" style="display:none;">
 
     <div class="title">Quote of the Day</div>
-
     <div class="date" id="date"></div>
-
     <div id="quote"></div>
-
-    <!-- Media container -->
     <div id="mediaContainer"></div>
 
   </div>
@@ -171,50 +166,19 @@ let times = [];
 const quoteInput = document.getElementById("quoteInput");
 const wordList = document.getElementById("wordList");
 
-// --- Desktop: SPACE key ---
-quoteInput.addEventListener("keydown", function(e){
-  if(e.key === " "){
-    e.preventDefault();
-    addWordFromInput();
-  }
-});
-
-// --- Mobile: input event ---
-quoteInput.addEventListener("input", function(e){
-  if(quoteInput.value.includes(" ")){
-    addWordFromInput();
-  }
-});
-
-// --- Function to handle word addition ---
-function addWordFromInput(){
-  const value = quoteInput.value;
-  const parts = value.split(" ");
-  
-  // Take all complete words except the last (may be incomplete)
-  for(let i = 0; i < parts.length - 1; i++){
-    const word = parts[i].trim();
-    if(word){
-      words.push(word);
-
-      // Ask seconds for this word
-      const sec = prompt(`Type seconds kung kailan animation :)"${word}"? (like 2,3,4 sec etc)`, "1");
-      times.push(Number(sec) || 1);
-    }
-  }
-
-  // Keep the last partial word in input
-  quoteInput.value = parts[parts.length - 1];
+// --- Split words automatically as you type ---
+quoteInput.addEventListener("input", function() {
+  words = quoteInput.value.trim().split(/\s+/); // split by spaces
+  times = words.map(() => 1); // default 1s per word
   updateWordList();
-}
+});
 
-// Update word list display
 function updateWordList(){
   wordList.innerHTML = "";
   words.forEach((w,i)=>{
     const div = document.createElement("div");
     div.className = "word-delay-box";
-    div.innerHTML = `<span>${w}</span> <span>${times[i]}s</span>`;
+    div.innerHTML = `<span>${w}</span> <input type="number" min="0" value="${times[i]}" onchange="times[${i}]=this.value">s`;
     wordList.appendChild(div);
   });
 }
@@ -243,7 +207,7 @@ function start(){
     span.style.animationDelay = total + "s";
     quoteDiv.appendChild(span);
 
-    total += times[i];
+    total += parseFloat(times[i]) || 1;
   });
 
   // Show media if uploaded
@@ -268,7 +232,7 @@ function start(){
     }
   }
 
-  // Reset for next use
+  // Reset inputs for next use
   words = [];
   times = [];
   quoteInput.value = "";
