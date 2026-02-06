@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Quote of the Day</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+<style>
+
+body {
+  margin: 0;
+  background: #8B5E3C; /* vintage brown */
+  color: #111;
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Main box */
+.box {
+  background: #F5F0E1; /* lighter vintage background for the card */
+  width: 90%;
+  max-width: 500px;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #ccc;
+}
+
+/* Input */
+.input-box input,
+.input-box button,
+.input-box textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  margin-top: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* Button */
+.input-box button {
+  background: #4B3621; /* dark brown button */
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Title */
+.title {
+  font-family: "Pacifico", cursive;
+  font-size: 42px;
+  margin-bottom: 5px;
+}
+
+/* Date */
+.date {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 25px;
+}
+
+/* Quote */
+#quote {
+  font-family: "Patrick Hand", cursive;
+  font-size: 28px;
+  line-height: 1.4;
+  min-height: 70px;
+  margin-bottom: 15px;
+  color: #3E2F1C; /* dark vintage color */
+}
+
+/* Word animation */
+.word {
+  opacity: 0;
+  display: inline-block;
+  margin-right: 6px;
+  animation: show 0.5s forwards;
+}
+
+@keyframes show {
+  from {opacity:0; transform:translateY(6px);}
+  to {opacity:1; transform:translateY(0);}
+}
+
+/* Word list display */
+.word-delay-box{
+  display:flex;
+  gap:10px;
+  margin-top:5px;
+}
+.word-delay-box span{
+  flex:1;
+  text-align:left;
+}
+
+/* Media styling */
+.media {
+  margin-top: 20px;
+  max-width: 100%;
+  border-radius: 12px;
+}
+
+/* GIF flex container */
+.header-flex {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.header-flex img {
+  width: 50px; /* adjust size as needed */
+  height: 50px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+  <!-- INPUT -->
+  <div class="input-box" id="inputBox">
+
+    <!-- Heading + GIF -->
+    <div class="header-flex">
+      <h2>Enter Quote Info</h2>
+      <img src="giphy.gif" alt="GIF">
+    </div>
+
+    <input id="dateInput" placeholder="Date (01/01/26)">
+
+    <input id="quoteInput" placeholder="Type your quote and press SPACE for animation">
+
+    <div id="wordList"></div>
+
+    <!-- Optional media input -->
+    <label for="mediaInput">Optional: Add picture or video</label>
+    <input type="file" id="mediaInput" accept="image/*,video/*">
+
+    <button onclick="start()">Show Quote</button>
+
+  </div>
+
+  <!-- OUTPUT -->
+  <div id="output" style="display:none;">
+
+    <div class="title">Quote of the Day</div>
+
+    <div class="date" id="date"></div>
+
+    <div id="quote"></div>
+
+    <!-- Media container -->
+    <div id="mediaContainer"></div>
+
+  </div>
+
+</div>
+
+<script>
+let words = [];
+let times = [];
+
+const quoteInput = document.getElementById("quoteInput");
+const wordList = document.getElementById("wordList");
+
+// Detect SPACE press to split word + ask seconds
+quoteInput.addEventListener("keydown", function(e){
+  if(e.key === " "){
+    e.preventDefault();
+    const word = quoteInput.value.trim();
+    if(word){
+      words.push(word);
+      quoteInput.value = "";
+
+      // Ask seconds for this word
+      const sec = prompt(`Type seconds kung kailan animation :)"${word}"? (like 2,3,4 sec etc)`, "1");
+      times.push(Number(sec) || 1);
+
+      updateWordList();
+    }
+  }
+});
+
+function updateWordList(){
+  wordList.innerHTML = "";
+  words.forEach((w,i)=>{
+    const div = document.createElement("div");
+    div.className = "word-delay-box";
+    div.innerHTML = `<span>${w}</span> <span>${times[i]}s</span>`;
+    wordList.appendChild(div);
+  });
+}
+
+function start(){
+  const date = document.getElementById("dateInput").value;
+  if(!date || words.length===0){
+    alert("Fill mo lahat AHAHAHAH dont forget");
+    return;
+  }
+
+  document.getElementById("inputBox").style.display = "none";
+  document.getElementById("output").style.display = "block";
+
+  // Set date
+  document.getElementById("date").textContent = "Day " + date;
+
+  // Animate words
+  const quoteDiv = document.getElementById("quote");
+  let total = 0;
+
+  words.forEach((w,i)=>{
+    const span = document.createElement("span");
+    span.textContent = w + " ";
+    span.className = "word";
+    span.style.animationDelay = total + "s";
+    quoteDiv.appendChild(span);
+
+    total += times[i];
+  });
+
+  // Show media if uploaded
+  const mediaInput = document.getElementById("mediaInput");
+  const mediaContainer = document.getElementById("mediaContainer");
+
+  if(mediaInput.files.length > 0){
+    const file = mediaInput.files[0];
+    const url = URL.createObjectURL(file);
+
+    if(file.type.startsWith("image/")){
+      const img = document.createElement("img");
+      img.src = url;
+      img.className = "media";
+      mediaContainer.appendChild(img);
+    } else if(file.type.startsWith("video/")){
+      const video = document.createElement("video");
+      video.src = url;
+      video.controls = true;
+      video.className = "media";
+      mediaContainer.appendChild(video);
+    }
+  }
+
+  // Reset for next use
+  words = [];
+  times = [];
+  quoteInput.value = "";
+  wordList.innerHTML = "";
+  mediaInput.value = "";
+}
+
+// ----------------------- AUTO PLAY ON PAGE LOAD -----------------------
+window.addEventListener("load", function() {
+  // Pre-fill date
+  document.getElementById("dateInput").value = "01/02/26";
+
+  // Pre-fill quote and seconds per word
+  words = ["This","is","an","automatic","quote"];
+  times = [1,1,1,1,1]; // seconds per word
+
+  // Start animation automatically
+  start();
+});
+</script>
+
+</body>
+</html>
